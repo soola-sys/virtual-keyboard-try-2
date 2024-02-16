@@ -1,0 +1,132 @@
+@import "/node_modules/normalize.css/normalize.css";
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap");
+
+body {
+  font-family: "Roboto", sans-serif;
+}
+.wrapper {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.container {
+  max-width: 916px;
+  margin: 0 auto;
+  /* overflow: hidden; */
+  /* width: 100%; */
+  padding: 0 15px;
+}
+.textarea {
+    width: 100%;
+    max-width: 916px;
+    display: block;
+    min-height: 350px;
+    margin: 10px auto;
+    padding: 12px 20px;
+    box-sizing: border-box;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    background-color: #f8f8f8;
+    font-size: 18px;
+  }
+  
+.content {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+.keyboard {
+  margin: 15px auto;
+  /* max-width: 889px; */
+  min-width: 350px;
+  display: block;
+  background: #cccc;
+  user-select: none;
+  /* border: 1px solid grey; */
+  border-radius: 10px;
+  padding: 10px;
+  box-shadow: 0 5px 7px 5px rgba(0, 0, 0, 0.2);
+}
+
+.keyboard__row {
+  text-align: center;
+  display: grid;
+  margin-top: 10px;
+  grid-template-columns: repeat(32, 24px);
+  grid-template-rows: repeat(5, 55px);
+  grid-gap: 4px;
+}
+
+.keyboard__key {
+  /* width: 6%;
+   height: 45px; */
+  border-radius: 5px;
+  background: white;
+  cursor: pointer;
+  font-weight: 600;
+  border: none;
+  font-size: 16px;
+  border: 1px solid black;
+  /* color:#fff; */
+  color: gray;
+  transition: 0.2s;
+  opacity: 0.6;
+  box-shadow: 0 2px grey;
+  grid-column: span 2;
+  /* display: inline-flex;
+   align-items: center;
+   justify-content: center; */
+}
+
+.keyboard__key:hover {
+  background-color: #f8ce82;
+  opacity: 1;
+}
+
+.keyboard__key:active {
+  box-shadow: 0 2px #666;
+  transform: translateY(1px);
+}
+
+/* .keyboard__key_backspace , ,.keyboard__key_enter , .keyboard__key_shift{
+    width: 92px;
+  } */
+
+.keyboard__key_backspace {
+  grid-column: span 6;
+}
+.keyboard__key_delete {
+  grid-column: span 3;
+}
+.keyboard__key_space {
+  grid-column: span 14;
+}
+.keyboard__key_capslock {
+  grid-column: span 4;
+}
+
+.keyboard__key_enter {
+  grid-column: span 6;
+}
+.keyboard__key_leftShift {
+  grid-column: span 4;
+}
+.keyboard__key_tab {
+  grid-column: span 3;
+}
+.keyboard__key_rightShift {
+  grid-column: span 4;
+}
+
+.keyboard__leftCtrl {
+  grid-column: span 4;
+}
+
+.active {
+  background: #fb8b02;
+  color: #fff;
+}

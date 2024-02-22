@@ -27,7 +27,7 @@ export const keyObj = {
   BracketLeft: '[',
   BracketRight: ']',
   Backslash: '\\',
-  Delete: 'Delete',
+  Delete: 'Del',
   CapsLock: 'CapsLock',
   KeyA: 'a',
   KeyS: 's',
@@ -52,15 +52,15 @@ export const keyObj = {
   Comma: ',',
   Period: '.',
   Slash: '/',
-  ShiftRight: 'Shift',
   ArrowUp: '↑',
+  ShiftRight: 'Shift',
   ControlLeft: 'Сtrl',
   MetaLeft: 'Win',
   AltLeft: 'Alt',
   Space: ' ',
   AltRight: 'Alt',
-  ControlRight: 'Ctrl',
   ArrowLeft: '←',
   ArrowDown: '↓',
-  ArrowRight: '→'
+  ArrowRight: '→',
+  ControlRight: 'Ctrl'
 };

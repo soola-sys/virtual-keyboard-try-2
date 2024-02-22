@@ -56,7 +56,7 @@ body {
   text-align: center;
   display: grid;
   margin-top: 10px;
-  grid-template-columns: repeat(32, 24px);
+  grid-template-columns: repeat(31, 24px);
   grid-template-rows: repeat(5, 55px);
   grid-gap: 4px;
 }
@@ -97,20 +97,20 @@ body {
   } */
 
 .keyboard__key_backspace {
-  grid-column: span 6;
+  grid-column: span 5;
 }
 .keyboard__key_delete {
-  grid-column: span 3;
+  grid-column: span 2;
 }
 .keyboard__key_space {
-  grid-column: span 14;
+  grid-column: span 13;
 }
 .keyboard__key_capslock {
   grid-column: span 4;
 }
 
 .keyboard__key_enter {
-  grid-column: span 6;
+  grid-column: span 5;
 }
 .keyboard__key_leftShift {
   grid-column: span 4;
@@ -119,11 +119,13 @@ body {
   grid-column: span 3;
 }
 .keyboard__key_rightShift {
-  grid-column: span 4;
+  grid-column: span 5;
 }
-
-.keyboard__leftCtrl {
-  grid-column: span 4;
+.keyboard__key_controlRight {
+  grid-column: span 3;
+}
+.keyboard__key_controlLeft {
+  grid-column: span 3;
 }
 
 .active {

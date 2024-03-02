@@ -1,14 +1,5 @@
 import { keyObj } from './keys.js';
-
-const appendStyles = (path) => {
-  let head = document.getElementsByTagName('head')[0];
-  let link = document.createElement('link');
-  link.setAttribute('rel', 'stylesheet');
-  link.href = path;
-  head.insertBefore(link, head.lastChild);
-};
-  
-appendStyles('./css/style.css');
+import { rukeyObj } from './rukeys.js';
 
 const insertNode = ({
   parentNode, tagName = 'div', className = [], textContent = ''
@@ -50,25 +41,50 @@ const specialKeyClasses = {
   ControlRight: 'keyboard__key_controlRight'
 };
 
-document.addEventListener('DOMContentLoaded', () => {
-  const wrapperEl = insertNode({ className: ['wrapper'] });
-  const containerEl = insertNode({ parentNode: wrapperEl, className: ['container'] });
-  const contentEl = insertNode({ parentNode: containerEl, className: ['content'] });
-  insertNode({ parentNode: contentEl, tagName: 'textarea', className: ['textarea'] });
-  const keyboardEl = insertNode({ parentNode: contentEl, className: ['keyboard'] });
-  const keyboardRow = insertNode({ parentNode: keyboardEl, className: ['keyboard__row'] });
+const wrapperEl = insertNode({ className: ['wrapper'] });
+const containerEl = insertNode({ parentNode: wrapperEl, className: ['container'] });
+const contentEl = insertNode({ parentNode: containerEl, className: ['content'] });
+const textAreaEl = insertNode({ parentNode: contentEl, tagName: 'textarea', className: ['textarea'] });
+textAreaEl.setAttribute('placeholder', 'Enter something...');
+const keyboardEl = insertNode({ parentNode: contentEl, className: ['keyboard'] });
+const keyboardRow = insertNode({ parentNode: keyboardEl, className: ['keyboard__row'] });
 
-  Object.entries(keyObj).forEach(([key, value]) => {
+function switchLayout(keyMap) {
+  keyboardRow.innerHTML = '';
+  Object.entries(keyMap).forEach(([key, value]) => {
     if (specialKeyClasses[key]) {
       makeButtonElement(value, keyboardRow, key, ['keyboard__key', specialKeyClasses[key]]);
     } else {
       makeButtonElement(value, keyboardRow, key, ['keyboard__key']);
     }
   });
+}
 
+document.addEventListener('DOMContentLoaded', () => {
+  let isLanguageSwitched = false;
+  if (localStorage.getItem('lang') === 'ru') {
+    switchLayout(rukeyObj);
+  } else {
+    switchLayout(keyObj);
+  }
+  document.addEventListener('keydown', (e) => {
+    if (keyObj[e.code]) {
+      let item = document.querySelector(`.keyboard__key[data-key='${e.code}']`);
+      item.classList.add('active');
+      setTimeout(() => item.classList.remove('active'), 100);
+      if (e.ctrlKey && e.altKey) {
+        if (!isLanguageSwitched) {
+          switchLayout(rukeyObj);
+          isLanguageSwitched = true;
+          localStorage.setItem('lang', 'ru');
+        } else {
+          switchLayout(keyObj);
+          isLanguageSwitched = false;
+          localStorage.setItem('lang', 'en');
+        }
+      }
+    }
+  });
   document.body.append(wrapperEl);
-
-  // console.log(buttons);
-  const textarea = document.querySelector('.textarea');
-  textarea.setAttribute('placeholder', 'Enter something...');
+  // localStorage.clear();
 });

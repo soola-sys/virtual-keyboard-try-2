@@ -38,6 +38,9 @@ const specialKeyClasses = {
   ShiftLeft: 'keyboard__key_leftShift',
   ShiftRight: 'keyboard__key_rightShift',
   ControlLeft: 'keyboard__key_controlLeft',
+  MetaLeft: 'keyboard__key_metakey',
+  AltLeft: 'keyboard__key_altLeft',
+  AltRight: 'keyboard__key_altRight',
   ControlRight: 'keyboard__key_controlRight'
 };
 
@@ -53,11 +56,32 @@ function switchLayout(keyMap) {
   keyboardRow.innerHTML = '';
   Object.entries(keyMap).forEach(([key, value]) => {
     if (specialKeyClasses[key]) {
-      makeButtonElement(value, keyboardRow, key, ['keyboard__key', specialKeyClasses[key]]);
+      makeButtonElement(value, keyboardRow, key, ['keyboard__key', specialKeyClasses[key], 'extra-key']);
     } else {
       makeButtonElement(value, keyboardRow, key, ['keyboard__key']);
     }
   });
+}
+
+const onEnterPressed = () => {
+  textAreaEl.value += '\n';
+};
+function onBackspacePressed() {
+  if (textAreaEl.selectionEnd === textAreaEl.value.length) {
+    textAreaEl.value = textAreaEl.value.slice(0, textAreaEl.selectionEnd - 1);
+  } else if (textAreaEl.selectionStart === textAreaEl.selectionEnd) {
+    let end = textAreaEl.value.slice(textAreaEl.selectionEnd);
+    let start = textAreaEl.value.slice(0, textAreaEl.selectionStart - 1);
+    let res = start + end;
+    textAreaEl.value = res;
+    textAreaEl.focus();
+    // textAreaEl.setSelectionRange(start - 1, start - 1);
+    // let caretPos = start + textAreaEl.value.length;
+    // let start = textAreaEl.value.slice(0, textAreaEl.selectionStart - 1);
+    // let caretPos = end + textAreaEl.value.length;
+    // textAreaEl.value = start + ' ' + end;
+    textAreaEl.setSelectionRange(start, res);
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -68,10 +92,15 @@ document.addEventListener('DOMContentLoaded', () => {
     switchLayout(keyObj);
   }
   document.addEventListener('keydown', (e) => {
+    e.preventDefault();
+    textAreaEl.focus();
     if (keyObj[e.code]) {
       let item = document.querySelector(`.keyboard__key[data-key='${e.code}']`);
       item.classList.add('active');
       setTimeout(() => item.classList.remove('active'), 100);
+      if (!item.classList.contains('extra-key')) {
+        textAreaEl.value += item.textContent;
+      }
       if (e.ctrlKey && e.altKey) {
         if (!isLanguageSwitched) {
           switchLayout(rukeyObj);
@@ -83,8 +112,13 @@ document.addEventListener('DOMContentLoaded', () => {
           localStorage.setItem('lang', 'en');
         }
       }
+      if (e.code === 'Enter') {
+        onEnterPressed();
+      }
+      if (e.code === 'Backspace') {
+        onBackspacePressed();
+      }
     }
   });
   document.body.append(wrapperEl);
-  // localStorage.clear();
 });

@@ -67,6 +67,7 @@ body {
   border-radius: 5px;
   background: white;
   cursor: pointer;
+  position: relative;
   font-weight: 600;
   border: none;
   font-size: 16px;
@@ -127,9 +128,10 @@ body {
 }
 
 .active {
-  animation: smooth-pulse 0.2s infinite alternate;
+  animation: smooth-pulse 0.5s infinite alternate;
   background-color: #f8ce82;
   opacity: 1;
+  top: 0.1em;
 }
 
 @keyframes smooth-pulse {

@@ -63,8 +63,14 @@ function switchLayout(keyMap) {
   });
 }
 
-const onEnterPressed = () => {
-  textAreaEl.value += '\n';
+const onEnterPressed = (selStart, selEnd) => {
+  if (selEnd === textAreaEl.value.length && (selStart === selEnd)) {
+    textAreaEl.value += '\n';
+  } else if (selStart === 0 && selEnd === 0) {
+    let res = textAreaEl.value.slice(0, textAreaEl.value.length);
+    textAreaEl.value = '\n' + res;
+    textAreaEl.setSelectionRange(selStart, selStart);
+  }
 };
 
 function onBackspacePressed(selStart, selEnd) {
@@ -93,16 +99,17 @@ function onDelPressed(selStart, selEnd) {
   }
 }
 
-function onTabPressed(selStart, selEnd) {
+function onTabPressed(selStart, selEnd, numberOfSpaces) {
+  let str = [...Array(numberOfSpaces)].fill(' ').join('');
   if (selEnd === textAreaEl.value.length && (selStart === selEnd)) {
-    textAreaEl.value += '    ';
+    textAreaEl.value += str;
   } else {
     let beforeCaret = textAreaEl.value.slice(0, selStart);
     let afterCaret = textAreaEl.value.slice(selEnd, textAreaEl.value.length);
-    let res = beforeCaret + '    ' + afterCaret;
+    let res = beforeCaret + str + afterCaret;
     textAreaEl.value = res;
     textAreaEl.focus();
-    textAreaEl.setSelectionRange(selStart + 4, selStart + 4);
+    textAreaEl.setSelectionRange(selStart + numberOfSpaces, selStart + numberOfSpaces);
   } 
 }
 
@@ -117,6 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
     e.preventDefault();
     textAreaEl.focus();
     if (keyObj[e.code]) {
+      // console.log(keyObj[e.code]);
       let selectionStart = textAreaEl.selectionStart;
       let selectionEnd = textAreaEl.selectionEnd;
       let item = document.querySelector(`.keyboard__key[data-key='${e.code}']`);
@@ -154,7 +162,10 @@ document.addEventListener('DOMContentLoaded', () => {
         onDelPressed(selectionStart, selectionEnd);
       }
       if (e.code === 'Tab') {
-        onTabPressed(selectionStart, selectionEnd);
+        onTabPressed(selectionStart, selectionEnd, 4);
+      }
+      if (e.code === 'Space') {
+        onTabPressed(selectionStart, selectionEnd, 1);
       }
     }
   });

@@ -1,6 +1,7 @@
 import { keyObj } from './keys.js';
 import { rukeyObj } from './rukeys.js';
-
+import { shiftKeys } from './shiftKeys.js';
+import { shiftKeysRu } from './shiftKeysRu.js';
 const insertNode = ({
   parentNode, tagName = 'div', className = [], textContent = ''
 } = {}) => {
@@ -63,15 +64,20 @@ function switchLayout(keyMap) {
   });
 }
 
-const onEnterPressed = (selStart, selEnd) => {
-  if (selEnd === textAreaEl.value.length && (selStart === selEnd)) {
-    textAreaEl.value += '\n';
-  } else if (selStart === 0 && selEnd === 0) {
-    let res = textAreaEl.value.slice(0, textAreaEl.value.length);
+function onEnterPressed(selStart, selEnd) {
+  let afterCaret = textAreaEl.value.slice(selEnd, textAreaEl.value.length);
+  let beforeCaret = textAreaEl.value.slice(0, selStart);
+  if (selStart === 0 && selEnd === 0) {
+    let res = textAreaEl.value;
     textAreaEl.value = '\n' + res;
-    textAreaEl.setSelectionRange(selStart, selStart);
+    textAreaEl.setSelectionRange(1, 1); 
+  } else {
+    textAreaEl.value = beforeCaret + '\n' + afterCaret;
+    let newLineIndexStart = beforeCaret.length + 1;
+    let newLineIndexEnd = newLineIndexStart;
+    textAreaEl.setSelectionRange(newLineIndexStart, newLineIndexEnd);
   }
-};
+}
 
 function onBackspacePressed(selStart, selEnd) {
   if (selEnd === textAreaEl.value.length && (selStart === selEnd)) {
@@ -113,8 +119,22 @@ function onTabPressed(selStart, selEnd, numberOfSpaces) {
   } 
 }
 
+const setDefaulCaret = (selStart, selEnd, item) => {
+  if (selEnd === textAreaEl.value.length && (selStart === selEnd)) {
+    textAreaEl.value += item.textContent;
+  } else {
+    let afterCaret = textAreaEl.value.slice(selEnd);
+    let beforeCaret = textAreaEl.value.slice(0, selStart);
+    let res = beforeCaret + item.textContent + afterCaret;
+    textAreaEl.value = res;
+    textAreaEl.setSelectionRange(selStart + 1, selStart + 1);
+  }
+  return item;
+};
+
 document.addEventListener('DOMContentLoaded', () => {
   let isLanguageSwitched = false;
+  let isShiftPressed = false;
   if (localStorage.getItem('lang') === 'ru') {
     switchLayout(rukeyObj);
   } else {
@@ -123,22 +143,31 @@ document.addEventListener('DOMContentLoaded', () => {
   document.addEventListener('keydown', (e) => {
     e.preventDefault();
     textAreaEl.focus();
+    const keys = document.querySelectorAll('.keyboard__key');
     if (keyObj[e.code]) {
-      // console.log(keyObj[e.code]);
       let selectionStart = textAreaEl.selectionStart;
       let selectionEnd = textAreaEl.selectionEnd;
       let item = document.querySelector(`.keyboard__key[data-key='${e.code}']`);
       item.classList.add('active');
       setTimeout(() => item.classList.remove('active'), 100);
       if (!item.classList.contains('extra-key')) {
-        if (selectionEnd === textAreaEl.value.length && (selectionStart === selectionEnd)) {
-          textAreaEl.value += item.textContent;
+        setDefaulCaret(selectionStart, selectionEnd, item);
+      }
+      if (e.code === 'CapsLock') {
+        keys.forEach((element) => {
+          let key = element;
+          if (!key.classList.contains('extra-key')) {
+            key.textContent = e.getModifierState('CapsLock')
+              ? key.textContent.toUpperCase() : key.textContent.toLowerCase();
+          }
+        });
+      }
+      if (e.shiftKey && !isShiftPressed) {
+        isShiftPressed = true;
+        if (localStorage.getItem('lang') !== 'ru') {
+          switchLayout(shiftKeys);
         } else {
-          let afterCaret = textAreaEl.value.slice(selectionEnd);
-          let beforeCaret = textAreaEl.value.slice(0, selectionStart);
-          let res = beforeCaret + item.textContent + afterCaret;
-          textAreaEl.value = res;
-          textAreaEl.setSelectionRange(selectionStart + 1, selectionStart + 1);
+          switchLayout(shiftKeysRu);
         }
       }
       if (e.ctrlKey && e.altKey) {
@@ -166,6 +195,16 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       if (e.code === 'Space') {
         onTabPressed(selectionStart, selectionEnd, 1);
+      }
+    }
+  });
+  document.addEventListener('keyup', (e) => {
+    if ((!e.shiftKey) && isShiftPressed) {
+      isShiftPressed = false;
+      if (localStorage.getItem('lang') !== 'ru') {
+        switchLayout(keyObj);
+      } else {
+        switchLayout(rukeyObj);
       }
     }
   });

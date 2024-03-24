@@ -44,6 +44,7 @@ body {
   /* max-width: 889px; */
   min-width: 350px;
   display: block;
+  border: 2px solid gray;
   background: #cccc;
   user-select: none;
   /* border: 1px solid grey; */
@@ -73,9 +74,8 @@ body {
   font-size: 16px;
   border: 1px solid black;
   /* color:#fff; */
-  transition: transform 0.2s ease;
+  transition: background-color 0.3s;
   color: #121212;
-  transition: 0.2s;
   opacity: 0.6;
   box-shadow: 0 2px grey;
   grid-column: span 2;
@@ -85,15 +85,6 @@ body {
   background-color: #f8ce82;
   opacity: 1;
 }
-/* 
-.keyboard__key:active {
-  box-shadow: 0 2px #666;
-  transform: translateY(1px);
-} */
-
-/* .keyboard__key_backspace , ,.keyboard__key_enter , .keyboard__key_shift{
-    width: 92px;
-  } */
 
 .keyboard__key_backspace {
   grid-column: span 5;
@@ -128,10 +119,11 @@ body {
 }
 
 .active {
-  animation: smooth-pulse 0.5s infinite alternate;
+  /* animation: smooth-pulse 0.3s cubic-bezier(0.390, 0.575, 0.565, 1.000); */
+  animation: smooth-pulse 0.3s infinite alternate;
   background-color: #f8ce82;
   opacity: 1;
-  top: 0.1em;
+  top: 0.2em;
 }
 
 @keyframes smooth-pulse {
@@ -139,6 +131,6 @@ body {
     transform: scale(1);
   }
   100% {
-    transform: scale(1.1);
+    transform: scale(1.2);
   }
 }

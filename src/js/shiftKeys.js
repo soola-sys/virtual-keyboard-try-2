@@ -13,7 +13,7 @@ export const shiftKeys = {
   Minus: '_',
   Equal: '+',
   Backspace: 'Backspace',
-  Tab: 'Tab',
+  Tab: 'Tab ⇆',
   KeyQ: 'Q',
   KeyW: 'W',
   KeyE: 'E',

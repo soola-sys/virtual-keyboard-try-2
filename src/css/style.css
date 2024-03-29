@@ -3,6 +3,8 @@
 
 body {
   font-family: "Roboto", sans-serif;
+  background: url('../../src/assets/waifuResize.jpg') no-repeat top;
+  background-size: cover;
 }
 .wrapper {
   min-height: 100vh;
@@ -14,9 +16,10 @@ body {
 .container {
   max-width: 916px;
   margin: 0 auto;
-  /* overflow: hidden; */
-  /* width: 100%; */
   padding: 0 15px;
+}
+.textarea:focus { 
+  outline: none;
 }
 .textarea {
     width: 100%;
@@ -24,12 +27,13 @@ body {
     display: block;
     min-height: 350px;
     margin: 10px auto;
+    background-color: #cccc;
     padding: 12px 20px;
     box-sizing: border-box;
-    border: 2px solid #ccc;
+    border: 2px solid #646368;
+    font-size: 20px;
+    font-weight: 500;
     border-radius: 4px;
-    background-color: #f8f8f8;
-    font-size: 18px;
   }
   
 .content {
@@ -44,8 +48,8 @@ body {
   /* max-width: 889px; */
   min-width: 350px;
   display: block;
-  border: 2px solid gray;
-  background: #cccc;
+  border: 2px solid #646368;
+  background: #646368;
   user-select: none;
   /* border: 1px solid grey; */
   border-radius: 10px;
@@ -66,7 +70,7 @@ body {
   /* width: 6%;
    height: 45px; */
   border-radius: 5px;
-  background: white;
+  background-color: #fcf7f3;
   cursor: pointer;
   position: relative;
   font-weight: 600;
@@ -88,6 +92,7 @@ body {
 
 .keyboard__key_backspace {
   grid-column: span 5;
+  background-color: #acacaa;
 }
 .keyboard__key_delete {
   grid-column: span 2;
@@ -97,27 +102,42 @@ body {
 }
 .keyboard__key_capslock {
   grid-column: span 4;
+  background-color: #acacaa;
 }
 
 .keyboard__key_enter {
   grid-column: span 5;
+  background-color: #acacaa;
 }
 .keyboard__key_leftShift {
   grid-column: span 4;
+  background-color: #fbeb53;
 }
 .keyboard__key_tab {
   grid-column: span 3;
+  background-color: #acacaa;
 }
 .keyboard__key_rightShift {
   grid-column: span 5;
+  background-color: #fbeb53;
 }
 .keyboard__key_controlRight {
   grid-column: span 3;
+  background-color: #ac425a;
 }
 .keyboard__key_controlLeft {
   grid-column: span 3;
+  background-color: #ac425a;
 }
-
+.keyboard__key_metakey {
+  background-color: #7e598f;
+}
+.keyboard__key_altLeft {
+  background-color: #85b9cf;
+}
+.keyboard__key_altRight{
+  background-color: #85b9cf;
+}
 .active {
   /* animation: smooth-pulse 0.3s cubic-bezier(0.390, 0.575, 0.565, 1.000); */
   animation: smooth-pulse 0.3s infinite alternate;

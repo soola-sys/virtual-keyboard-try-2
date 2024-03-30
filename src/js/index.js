@@ -55,6 +55,12 @@ textAreaEl.setAttribute('autofocus', '');
 const keyboardEl = insertNode({ parentNode: contentEl, className: ['keyboard'] });
 const keyboardRow = insertNode({ parentNode: keyboardEl, className: ['keyboard__row'] });
 
+const keyboardState = {
+  isLanguageSwitched: false,
+  shiftPressed: false,
+  capsLockPressed: false
+};
+
 function switchLayout(keyMap) {
   keyboardRow.innerHTML = '';
   Object.entries(keyMap).forEach(([key, value]) => {
@@ -144,11 +150,6 @@ const switchKeyboardLang = () => {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
-  const keyboardState = {
-    isLanguageSwitched: false,
-    shiftPressed: false,
-    capsLockPressed: false
-  };
   switchKeyboardLang();
   document.addEventListener('keydown', (e) => {
     e.preventDefault();
@@ -158,10 +159,8 @@ document.addEventListener('DOMContentLoaded', () => {
       let selectionStart = textAreaEl.selectionStart;
       let selectionEnd = textAreaEl.selectionEnd;
       let item = document.querySelector(`.keyboard__key[data-key='${e.code}']`);
-      if ((item.dataset.key !== 'ShiftRight') && (item.dataset.key !== 'ShiftLeft')) {
-        item.classList.add('active');
-        setTimeout(() => item.classList.remove('active'), 100);   
-      }
+      item.classList.add('active');
+      setTimeout(() => item.classList.remove('active'), 100);   
       if (!item.classList.contains('extra-key')) {
         setDefaulCaret(selectionStart, selectionEnd, item);
       }
@@ -178,16 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         });
       }
-      if ((e.shiftKey) && !keyboardState.isShiftPressed) {
-        keyboardState.isShiftPressed = true;
-        if (localStorage.getItem('lang') !== 'ru') {
-          switchLayout(shiftKeys);
-        } else {
-          switchLayout(shiftKeysRu);
-        }
-        let shiftStyles = document.querySelector(`.keyboard__key[data-key='${e.code}']`);
-        shiftStyles.classList.add('active');
-      }
+
       if (e.ctrlKey && e.altKey) {
         if (!keyboardState.isLanguageSwitched) {
           switchLayout(rukeyObj);
@@ -216,6 +206,18 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
   });
+  document.addEventListener('keydown', (e) => {
+    if ((e.shiftKey) && !keyboardState.isShiftPressed) {
+      keyboardState.isShiftPressed = true;
+      if (localStorage.getItem('lang') !== 'ru') {
+        switchLayout(shiftKeys);
+      } else {
+        switchLayout(shiftKeysRu);
+      }
+      let shiftStyles = document.querySelector(`.keyboard__key[data-key='${e.code}']`);
+      shiftStyles.classList.add('active');
+    }
+  });
   document.addEventListener('keyup', (e) => {
     if ((!e.shiftKey) && keyboardState.isShiftPressed) {
       keyboardState.isShiftPressed = false;
@@ -224,15 +226,15 @@ document.addEventListener('DOMContentLoaded', () => {
       if (shiftUp.classList.contains('active')) {
         shiftUp.classList.remove('active');
       }
-      // setTimeout(() => shiftStyles.classList.remove('active'), 100);
     }
   });
+
   document.addEventListener('click', (e) => {
     e.preventDefault();
     textAreaEl.focus();
     let activeKey = e.target;
     const newKeys = document.querySelectorAll('.keyboard__key');
-    if (e.target.classList.contains('keyboard__key')) {
+    if (activeKey.classList.contains('keyboard__key')) {
       activeKey.classList.add('active');
       setTimeout(() => activeKey.classList.remove('active'), 100);
       if (!e.target.classList.contains('extra-key')) {
@@ -263,14 +265,26 @@ document.addEventListener('DOMContentLoaded', () => {
       if (e.target.dataset.key === 'Space') {
         onTabPressed(textAreaEl.selectionStart, textAreaEl.selectionEnd, 1);
       }
-      if (e.target.dataset.key === 'ShiftLeft' && !keyboardState.isShiftPressed) {
-        keyboardState.isShiftPressed = true;
-        if (localStorage.getItem('lang') !== 'ru') {
-          switchLayout(shiftKeys);
-        } else {
-          switchLayout(shiftKeysRu);
-        }
+    }
+  });
+  document.addEventListener('mousedown', (e) => {
+    if ((e.target.dataset.key === 'ShiftLeft' || e.target.dataset.key === 'ShiftRight') && !keyboardState.isShiftPressed) {
+      keyboardState.isShiftPressed = true;
+      if (localStorage.getItem('lang') !== 'ru') {
+        switchLayout(shiftKeys);
+      } else {
+        switchLayout(shiftKeysRu);
       }
+      console.log(e.target);
+      // if (!e.target.classList.contains('active')) {
+      //   e.target.classList.add('active');
+      // }
+    }
+  });
+  document.addEventListener('mouseup', (e) => {
+    if ((!e.shiftKey) && keyboardState.isShiftPressed) {
+      keyboardState.isShiftPressed = false;
+      switchKeyboardLang();
     }
   });
   document.body.append(wrapperEl);

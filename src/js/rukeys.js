@@ -12,7 +12,7 @@ export const rukeyObj = {
   Digit0: '0',
   Minus: '-',
   Equal: '=',
-  Backspace: 'Backspace',
+  Backspace: '← Backspace',
   Tab: 'Tab ⇆',
   KeyQ: 'й',
   KeyW: 'ц',

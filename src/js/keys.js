@@ -12,7 +12,7 @@ export const keyObj = {
   Digit0: '0',
   Minus: '-',
   Equal: '=',
-  Backspace: 'Backspace',
+  Backspace: '← Backspace',
   Tab: 'Tab ⇆',
   KeyQ: 'q',
   KeyW: 'w',

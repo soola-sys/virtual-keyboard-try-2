@@ -2,33 +2,8 @@ import { keyObj } from './keys.js';
 import { rukeyObj } from './rukeys.js';
 import { shiftKeys } from './shiftKeys.js';
 import { shiftKeysRu } from './shiftKeysRu.js';
-
-const insertNode = ({
-  parentNode, tagName = 'div', className = [], textContent = ''
-} = {}) => {
-  const node = document.createElement(tagName);
-  node.classList.add(...className);
-  node.textContent = textContent;
-  if (parentNode) {
-    parentNode.append(node);
-  }
-  return node;
-};
-
-const makeButtonElement = (text, parentNode, dataAttr, className = []) => {
-  const button = insertNode(
-    {
-      parentNode: parentNode,
-      textContent: text, 
-      tagName: 'button',
-      className: className
-    }
-  );
-  if (dataAttr) {
-    button.setAttribute('data-key', `${dataAttr}`);
-  }
-  return button;
-};
+import insertNode from '../modules/insertNode.js';
+import makeButtonElement from '../modules/makeButtonElement.js';
 
 const specialKeyClasses = {
   Backspace: 'keyboard__key_backspace',
@@ -61,7 +36,7 @@ const keyboardState = {
   capsLockPressed: false
 };
 
-function switchLayout(keyMap) {
+const switchLayout = (keyMap) => {
   keyboardRow.innerHTML = '';
   Object.entries(keyMap).forEach(([key, value]) => {
     if (specialKeyClasses[key]) {
@@ -70,9 +45,9 @@ function switchLayout(keyMap) {
       makeButtonElement(value, keyboardRow, key, ['keyboard__key']);
     }
   });
-}
+};
 
-function onEnterPressed(selStart, selEnd) {
+const onEnterPressed = (selStart, selEnd) => {
   let afterCaret = textAreaEl.value.slice(selEnd, textAreaEl.value.length);
   let beforeCaret = textAreaEl.value.slice(0, selStart);
   if (selStart === 0 && selEnd === 0) {
@@ -85,9 +60,9 @@ function onEnterPressed(selStart, selEnd) {
     let newLineIndexEnd = newLineIndexStart;
     textAreaEl.setSelectionRange(newLineIndexStart, newLineIndexEnd);
   }
-}
+};
 
-function onBackspacePressed(selStart, selEnd) {
+const onBackspacePressed = (selStart, selEnd) => {
   if (selEnd === textAreaEl.value.length && (selStart === selEnd)) {
     textAreaEl.value = textAreaEl.value.slice(0, textAreaEl.selectionEnd - 1);
   } else if (selStart === 0 && selEnd === 0) {
@@ -98,9 +73,9 @@ function onBackspacePressed(selStart, selEnd) {
     textAreaEl.focus();
     textAreaEl.setSelectionRange(selStart, selStart - 1);
   }
-}
+};
 
-function onDelPressed(selStart, selEnd) {
+const onDelPressed = (selStart, selEnd) => {
   if (selEnd === textAreaEl.value.length && (selStart === selEnd)) {
     textAreaEl.setSelectionRange(selStart, selEnd);
   } else {
@@ -111,9 +86,9 @@ function onDelPressed(selStart, selEnd) {
     textAreaEl.focus();
     textAreaEl.setSelectionRange(selStart, selStart);
   }
-}
+};
 
-function onTabPressed(selStart, selEnd, numberOfSpaces) {
+const onTabPressed = (selStart, selEnd, numberOfSpaces) => {
   let str = [...Array(numberOfSpaces)].fill(' ').join('');
   if (selEnd === textAreaEl.value.length && (selStart === selEnd)) {
     textAreaEl.value += str;
@@ -125,7 +100,7 @@ function onTabPressed(selStart, selEnd, numberOfSpaces) {
     textAreaEl.focus();
     textAreaEl.setSelectionRange(selStart + numberOfSpaces, selStart + numberOfSpaces);
   } 
-}
+};
 
 const setDefaulCaret = (selStart, selEnd, item) => {
   if (selEnd === textAreaEl.value.length && (selStart === selEnd)) {
@@ -141,16 +116,23 @@ const setDefaulCaret = (selStart, selEnd, item) => {
   return item;
 };
 
-const switchKeyboardLang = () => {
+const switchKeyboardLang = (eng, ru) => {
   if (localStorage.getItem('lang') !== 'ru') {
-    switchLayout(keyObj);
+    switchLayout(eng);
   } else {
-    switchLayout(rukeyObj);
+    switchLayout(ru);
   }
 };
 
+const toggleShiftKey = (event, shiftState, engKeys, ruKeys) => {
+  if (event.shiftKey === shiftState && keyboardState.isShiftPressed !== shiftState) {
+    keyboardState.isShiftPressed = shiftState;
+    switchKeyboardLang(engKeys, ruKeys);
+  } 
+};
+
 document.addEventListener('DOMContentLoaded', () => {
-  switchKeyboardLang();
+  switchKeyboardLang(keyObj, rukeyObj);
   document.addEventListener('keydown', (e) => {
     e.preventDefault();
     textAreaEl.focus();
@@ -158,10 +140,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (keyObj[e.code]) {
       let selectionStart = textAreaEl.selectionStart;
       let selectionEnd = textAreaEl.selectionEnd;
-      let item = document.querySelector(`.keyboard__key[data-key='${e.code}']`);
-      item.classList.add('active');
-      setTimeout(() => item.classList.remove('active'), 100);   
+      let item = document.querySelector(`.keyboard__key[data-key='${e.code}']`); 
       if (!item.classList.contains('extra-key')) {
+        item.classList.add('active');
+        setTimeout(() => item.classList.remove('active'), 100);  
         setDefaulCaret(selectionStart, selectionEnd, item);
       }
       if (e.code === 'CapsLock') {
@@ -206,26 +188,46 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
   });
+  // document.addEventListener('keydown', (e) => {
+  //   if (e.shiftKey) {
+  //     keyboardState.isShiftPressed = true;
+  //   }
+  // });
+  // document.addEventListener('keyup', (e) => {
+  //   if (!e.shiftKey) {
+  //     keyboardState.isShiftPressed = false;
+  //   }
+  // });
+  // document.addEventListener('keydown', (e) => {
+  //   if ((e.shiftKey) && !keyboardState.isShiftPressed) {
+  //     keyboardState.isShiftPressed = true;
+  //     switchKeyboardLang(shiftKeys, shiftKeysRu);
+  //     let shiftStyles = document.querySelector(`.keyboard__key[data-key='${e.code}']`);
+  //     shiftStyles.classList.add('active');
+  //   }
+  // });
+
+  // document.addEventListener('keyup', (e) => {
+  //   if ((!e.shiftKey) && keyboardState.isShiftPressed) {
+  //     keyboardState.isShiftPressed = false;
+  //     switchKeyboardLang(keyObj, rukeyObj);
+  //     let shiftUp = document.querySelector(`.keyboard__key[data-key='${e.code}']`);
+  //     if (shiftUp.classList.contains('active')) {
+  //       shiftUp.classList.remove('active');
+  //     }
+  //   }
+  // });
+
   document.addEventListener('keydown', (e) => {
-    if ((e.shiftKey) && !keyboardState.isShiftPressed) {
-      keyboardState.isShiftPressed = true;
-      if (localStorage.getItem('lang') !== 'ru') {
-        switchLayout(shiftKeys);
-      } else {
-        switchLayout(shiftKeysRu);
-      }
-      let shiftStyles = document.querySelector(`.keyboard__key[data-key='${e.code}']`);
-      shiftStyles.classList.add('active');
-    }
+    toggleShiftKey(e, true, shiftKeys, shiftKeysRu);
+    let shiftStyles = document.querySelector(`.keyboard__key[data-key='${e.code}']`);
+    shiftStyles.classList.add('active');
   });
   document.addEventListener('keyup', (e) => {
-    if ((!e.shiftKey) && keyboardState.isShiftPressed) {
-      keyboardState.isShiftPressed = false;
-      switchKeyboardLang();
-      let shiftUp = document.querySelector(`.keyboard__key[data-key='${e.code}']`);
-      if (shiftUp.classList.contains('active')) {
-        shiftUp.classList.remove('active');
-      }
+    toggleShiftKey(e, false, keyObj, rukeyObj);
+    let shiftUp = document.querySelector(`.keyboard__key[data-key='${e.code}']`);
+    if (shiftUp.classList.contains('active')) {
+      shiftUp.classList.remove('active');
     }
   });
 
@@ -268,24 +270,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
   document.addEventListener('mousedown', (e) => {
-    if ((e.target.dataset.key === 'ShiftLeft' || e.target.dataset.key === 'ShiftRight') && !keyboardState.isShiftPressed) {
-      keyboardState.isShiftPressed = true;
-      if (localStorage.getItem('lang') !== 'ru') {
-        switchLayout(shiftKeys);
-      } else {
-        switchLayout(shiftKeysRu);
-      }
-      console.log(e.target);
-      // if (!e.target.classList.contains('active')) {
-      //   e.target.classList.add('active');
-      // }
-    }
+    toggleShiftKey(e, true, shiftKeys, shiftKeysRu);
+    let shiftStyles = document.querySelector(`.keyboard__key[data-key='${e.code}']`);
+    shiftStyles.classList.add('active');
   });
   document.addEventListener('mouseup', (e) => {
-    if ((!e.shiftKey) && keyboardState.isShiftPressed) {
-      keyboardState.isShiftPressed = false;
-      switchKeyboardLang();
+    toggleShiftKey(e, false, keyObj, rukeyObj);
+    let shiftUp = document.querySelector(`.keyboard__key[data-key='${e.code}']`);
+    if (shiftUp.classList.contains('active')) {
+      shiftUp.classList.remove('active');
     }
   });
+  // document.addEventListener('mousedown', toggleShiftKey);
+  // document.addEventListener('mouseup', toggleShiftKey);
   document.body.append(wrapperEl);
 });

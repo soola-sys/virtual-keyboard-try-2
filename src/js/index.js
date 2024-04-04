@@ -88,8 +88,8 @@ const onDelPressed = (selStart, selEnd) => {
   }
 };
 
-const onTabPressed = (selStart, selEnd, numberOfSpaces) => {
-  let str = [...Array(numberOfSpaces)].fill(' ').join('');
+const onTabPressed = (selStart, selEnd) => {
+  let str = [...Array(4)].fill(' ').join('');
   if (selEnd === textAreaEl.value.length && (selStart === selEnd)) {
     textAreaEl.value += str;
   } else {
@@ -98,7 +98,7 @@ const onTabPressed = (selStart, selEnd, numberOfSpaces) => {
     let res = beforeCaret + str + afterCaret;
     textAreaEl.value = res;
     textAreaEl.focus();
-    textAreaEl.setSelectionRange(selStart + numberOfSpaces, selStart + numberOfSpaces);
+    textAreaEl.setSelectionRange(selStart + 4, selStart + 4);
   } 
 };
 
@@ -129,6 +129,28 @@ const toggleShiftKey = (event, shiftState, engKeys, ruKeys) => {
     keyboardState.isShiftPressed = shiftState;
     switchKeyboardLang(engKeys, ruKeys);
   } 
+};
+
+const onCapslockClick = (keysArr) => {
+  keyboardState.capsLockPressed = !keyboardState.capsLockPressed;
+  keysArr.forEach((element) => {
+    let key = element;
+    if (!key.classList.contains('extra-key')) {
+      if (keyboardState.capsLockPressed) {
+        key.textContent = key.textContent.toUpperCase();
+        console.log(key);
+      } else {
+        key.textContent = key.textContent.toLowerCase();
+      }
+    }
+  });
+  return keysArr;
+};
+
+const keyHandlers = {
+  Enter: onEnterPressed,
+  Backspace: onBackspacePressed,
+  Delete: onDelPressed
 };
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -171,14 +193,9 @@ document.addEventListener('DOMContentLoaded', () => {
           localStorage.setItem('lang', 'en');
         }
       }
-      if (e.code === 'Enter') {
-        onEnterPressed(selectionStart, selectionEnd);
-      }
-      if (e.code === 'Backspace') {
-        onBackspacePressed(selectionStart, selectionEnd);
-      }
-      if (e.code === 'Delete') {
-        onDelPressed(selectionStart, selectionEnd);
+      const keyHandler = keyHandlers[e.code];
+      if (keyHandler) {
+        keyHandler(selectionStart, selectionEnd);
       }
       if (e.code === 'Tab') {
         onTabPressed(selectionStart, selectionEnd, 4);
@@ -188,35 +205,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
   });
-  // document.addEventListener('keydown', (e) => {
-  //   if (e.shiftKey) {
-  //     keyboardState.isShiftPressed = true;
-  //   }
-  // });
-  // document.addEventListener('keyup', (e) => {
-  //   if (!e.shiftKey) {
-  //     keyboardState.isShiftPressed = false;
-  //   }
-  // });
-  // document.addEventListener('keydown', (e) => {
-  //   if ((e.shiftKey) && !keyboardState.isShiftPressed) {
-  //     keyboardState.isShiftPressed = true;
-  //     switchKeyboardLang(shiftKeys, shiftKeysRu);
-  //     let shiftStyles = document.querySelector(`.keyboard__key[data-key='${e.code}']`);
-  //     shiftStyles.classList.add('active');
-  //   }
-  // });
-
-  // document.addEventListener('keyup', (e) => {
-  //   if ((!e.shiftKey) && keyboardState.isShiftPressed) {
-  //     keyboardState.isShiftPressed = false;
-  //     switchKeyboardLang(keyObj, rukeyObj);
-  //     let shiftUp = document.querySelector(`.keyboard__key[data-key='${e.code}']`);
-  //     if (shiftUp.classList.contains('active')) {
-  //       shiftUp.classList.remove('active');
-  //     }
-  //   }
-  // });
 
   document.addEventListener('keydown', (e) => {
     toggleShiftKey(e, true, shiftKeys, shiftKeysRu);
@@ -243,23 +231,11 @@ document.addEventListener('DOMContentLoaded', () => {
         setDefaulCaret(textAreaEl.selectionStart, textAreaEl.selectionEnd, activeKey);
       }
       if (e.target.dataset.key === 'CapsLock') {
-        keyboardState.capsLockPressed = !keyboardState.capsLockPressed;
-        newKeys.forEach((element) => {
-          let key = element;
-          if (!key.classList.contains('extra-key')) {
-            key.textContent = keyboardState.capsLockPressed
-              ? key.textContent.toUpperCase() : key.textContent.toLowerCase();
-          }
-        });
+        onCapslockClick(newKeys);
       }
-      if (e.target.dataset.key === 'Enter') {
-        onEnterPressed(textAreaEl.selectionStart, textAreaEl.selectionEnd);
-      }
-      if (e.target.dataset.key === 'Backspace') {
-        onBackspacePressed(textAreaEl.selectionStart, textAreaEl.selectionEnd);
-      }
-      if (e.target.dataset.key === 'Delete') {
-        onDelPressed(textAreaEl.selectionStart, textAreaEl.selectionEnd);
+      const eventKeyHandler = keyHandlers[e.target.dataset.key];
+      if (eventKeyHandler) {
+        eventKeyHandler(textAreaEl.selectionStart, textAreaEl.selectionEnd);
       }
       if (e.target.dataset.key === 'Tab') {
         onTabPressed(textAreaEl.selectionStart, textAreaEl.selectionEnd, 4);
@@ -269,18 +245,18 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
   });
-  document.addEventListener('mousedown', (e) => {
-    toggleShiftKey(e, true, shiftKeys, shiftKeysRu);
-    let shiftStyles = document.querySelector(`.keyboard__key[data-key='${e.code}']`);
-    shiftStyles.classList.add('active');
-  });
-  document.addEventListener('mouseup', (e) => {
-    toggleShiftKey(e, false, keyObj, rukeyObj);
-    let shiftUp = document.querySelector(`.keyboard__key[data-key='${e.code}']`);
-    if (shiftUp.classList.contains('active')) {
-      shiftUp.classList.remove('active');
-    }
-  });
+  // document.addEventListener('mousedown', (e) => {
+  //   toggleShiftKey(e, true, shiftKeys, shiftKeysRu);
+  //   let shiftStyles = document.querySelector(`.keyboard__key[data-key='${e.code}']`);
+  //   shiftStyles.classList.add('active');
+  // });
+  // document.addEventListener('mouseup', (e) => {
+  //   toggleShiftKey(e, false, keyObj, rukeyObj);
+  //   let shiftUp = document.querySelector(`.keyboard__key[data-key='${e.code}']`);
+  //   if (shiftUp.classList.contains('active')) {
+  //     shiftUp.classList.remove('active');
+  //   }
+  // });
   // document.addEventListener('mousedown', toggleShiftKey);
   // document.addEventListener('mouseup', toggleShiftKey);
   document.body.append(wrapperEl);

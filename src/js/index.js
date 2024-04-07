@@ -2,38 +2,25 @@ import { keyObj } from './keys.js';
 import { rukeyObj } from './rukeys.js';
 import { shiftKeys } from './shiftKeys.js';
 import { shiftKeysRu } from './shiftKeysRu.js';
+import { specialKeyClasses } from './keyClassObj.js';
 import insertNode from '../modules/insertNode.js';
 import makeButtonElement from '../modules/makeButtonElement.js';
-
-const specialKeyClasses = {
-  Backspace: 'keyboard__key_backspace',
-  Tab: 'keyboard__key_tab',
-  Delete: 'keyboard__key_delete',
-  CapsLock: 'keyboard__key_capslock',
-  Space: 'keyboard__key_space',
-  Enter: 'keyboard__key_enter',
-  ShiftLeft: 'keyboard__key_leftShift',
-  ShiftRight: 'keyboard__key_rightShift',
-  ControlLeft: 'keyboard__key_controlLeft',
-  MetaLeft: 'keyboard__key_metakey',
-  AltLeft: 'keyboard__key_altLeft',
-  AltRight: 'keyboard__key_altRight',
-  ControlRight: 'keyboard__key_controlRight'
-};
 
 const wrapperEl = insertNode({ className: ['wrapper'] });
 const containerEl = insertNode({ parentNode: wrapperEl, className: ['container'] });
 const contentEl = insertNode({ parentNode: containerEl, className: ['content'] });
 const textAreaEl = insertNode({ parentNode: contentEl, tagName: 'textarea', className: ['textarea'] });
-textAreaEl.setAttribute('placeholder', 'Enter something...');
-textAreaEl.setAttribute('autofocus', '');
 const keyboardEl = insertNode({ parentNode: contentEl, className: ['keyboard'] });
 const keyboardRow = insertNode({ parentNode: keyboardEl, className: ['keyboard__row'] });
+
+textAreaEl.setAttribute('placeholder', 'Enter something...');
+textAreaEl.setAttribute('autofocus', '');
 
 const keyboardState = {
   isLanguageSwitched: false,
   shiftPressed: false,
-  capsLockPressed: false
+  capsLockPressed: false,
+  keys: []
 };
 
 const switchLayout = (keyMap) => {
@@ -41,6 +28,7 @@ const switchLayout = (keyMap) => {
   Object.entries(keyMap).forEach(([key, value]) => {
     if (specialKeyClasses[key]) {
       makeButtonElement(value, keyboardRow, key, ['keyboard__key', specialKeyClasses[key], 'extra-key']);
+      keyboardState.keys.push(key);
     } else {
       makeButtonElement(value, keyboardRow, key, ['keyboard__key']);
     }
@@ -88,8 +76,8 @@ const onDelPressed = (selStart, selEnd) => {
   }
 };
 
-const onTabPressed = (selStart, selEnd) => {
-  let str = [...Array(4)].fill(' ').join('');
+const onTabPressed = (selStart, selEnd, numberOfSpaces) => {
+  let str = [...Array(numberOfSpaces)].fill(' ').join('');
   if (selEnd === textAreaEl.value.length && (selStart === selEnd)) {
     textAreaEl.value += str;
   } else {
@@ -98,7 +86,7 @@ const onTabPressed = (selStart, selEnd) => {
     let res = beforeCaret + str + afterCaret;
     textAreaEl.value = res;
     textAreaEl.focus();
-    textAreaEl.setSelectionRange(selStart + 4, selStart + 4);
+    textAreaEl.setSelectionRange(selStart + numberOfSpaces, selStart + numberOfSpaces);
   } 
 };
 
@@ -125,10 +113,15 @@ const switchKeyboardLang = (eng, ru) => {
 };
 
 const toggleShiftKey = (event, shiftState, engKeys, ruKeys) => {
-  if (event.shiftKey === shiftState && keyboardState.isShiftPressed !== shiftState) {
+  if ((event.code === 'ShiftLeft' || event.code === 'ShiftRight') && keyboardState.isShiftPressed !== shiftState) {
     keyboardState.isShiftPressed = shiftState;
     switchKeyboardLang(engKeys, ruKeys);
   } 
+};
+const setLocalStorageState = (keyObject, langState, lang) => {
+  switchLayout(keyObject);
+  keyboardState.isLanguageSwitched = langState;
+  localStorage.setItem('lang', lang);
 };
 
 const onCapslockClick = (keysArr) => {
@@ -138,7 +131,6 @@ const onCapslockClick = (keysArr) => {
     if (!key.classList.contains('extra-key')) {
       if (keyboardState.capsLockPressed) {
         key.textContent = key.textContent.toUpperCase();
-        console.log(key);
       } else {
         key.textContent = key.textContent.toLowerCase();
       }
@@ -160,12 +152,10 @@ document.addEventListener('DOMContentLoaded', () => {
     textAreaEl.focus();
     const keys = document.querySelectorAll('.keyboard__key');
     if (keyObj[e.code]) {
-      let selectionStart = textAreaEl.selectionStart;
-      let selectionEnd = textAreaEl.selectionEnd;
+      const selectionStart = textAreaEl.selectionStart;
+      const selectionEnd = textAreaEl.selectionEnd;
       let item = document.querySelector(`.keyboard__key[data-key='${e.code}']`); 
       if (!item.classList.contains('extra-key')) {
-        item.classList.add('active');
-        setTimeout(() => item.classList.remove('active'), 100);  
         setDefaulCaret(selectionStart, selectionEnd, item);
       }
       if (e.code === 'CapsLock') {
@@ -180,17 +170,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
           }
         });
+        document.querySelector(`.keyboard__key[data-key='${e.code}']`).classList.toggle('keyboard__key_active');
       }
 
       if (e.ctrlKey && e.altKey) {
         if (!keyboardState.isLanguageSwitched) {
-          switchLayout(rukeyObj);
-          keyboardState.isLanguageSwitched = true;
-          localStorage.setItem('lang', 'ru');
+          setLocalStorageState(rukeyObj, true, 'ru');
         } else {
-          switchLayout(keyObj);
-          keyboardState.isLanguageSwitched = false;
-          localStorage.setItem('lang', 'en');
+          setLocalStorageState(keyObj, false, 'en');
         }
       }
       const keyHandler = keyHandlers[e.code];
@@ -231,7 +218,8 @@ document.addEventListener('DOMContentLoaded', () => {
         setDefaulCaret(textAreaEl.selectionStart, textAreaEl.selectionEnd, activeKey);
       }
       if (e.target.dataset.key === 'CapsLock') {
-        onCapslockClick(newKeys);
+        onCapslockClick(newKeys, e);
+        e.target.classList.toggle('keyboard__key_active', keyboardState.capsLockPressed);
       }
       const eventKeyHandler = keyHandlers[e.target.dataset.key];
       if (eventKeyHandler) {
@@ -243,21 +231,18 @@ document.addEventListener('DOMContentLoaded', () => {
       if (e.target.dataset.key === 'Space') {
         onTabPressed(textAreaEl.selectionStart, textAreaEl.selectionEnd, 1);
       }
+      if (e.target.dataset.key === 'ShiftLeft' || e.target.dataset.key === 'ShiftRight') {
+        if (!keyboardState.isShiftPressed) {
+          keyboardState.isShiftPressed = true;
+          switchKeyboardLang(shiftKeys, shiftKeysRu);
+          document.querySelector(`.keyboard__key[data-key='${e.target.dataset.key}']`).classList.add('keyboard__key_active'); 
+        } else if (keyboardState.isShiftPressed) {
+          keyboardState.isShiftPressed = false;
+          switchKeyboardLang(keyObj, rukeyObj);
+          document.querySelector(`.keyboard__key[data-key='${e.target.dataset.key}']`).classList.remove('keyboard__key_active'); 
+        }
+      }
     }
   });
-  // document.addEventListener('mousedown', (e) => {
-  //   toggleShiftKey(e, true, shiftKeys, shiftKeysRu);
-  //   let shiftStyles = document.querySelector(`.keyboard__key[data-key='${e.code}']`);
-  //   shiftStyles.classList.add('active');
-  // });
-  // document.addEventListener('mouseup', (e) => {
-  //   toggleShiftKey(e, false, keyObj, rukeyObj);
-  //   let shiftUp = document.querySelector(`.keyboard__key[data-key='${e.code}']`);
-  //   if (shiftUp.classList.contains('active')) {
-  //     shiftUp.classList.remove('active');
-  //   }
-  // });
-  // document.addEventListener('mousedown', toggleShiftKey);
-  // document.addEventListener('mouseup', toggleShiftKey);
   document.body.append(wrapperEl);
 });

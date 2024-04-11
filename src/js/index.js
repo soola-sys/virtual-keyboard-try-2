@@ -8,11 +8,16 @@ import makeButtonElement from '../modules/makeButtonElement.js';
 
 const wrapperEl = insertNode({ className: ['wrapper'] });
 const containerEl = insertNode({ parentNode: wrapperEl, className: ['container'] });
+const descriptionDiv = insertNode({ parentNode: containerEl, className: ['description'] });
+const titleEl = insertNode({ parentNode: descriptionDiv, tagName: 'p', className: ['title'] });
+const subtitleEl = insertNode({ parentNode: descriptionDiv, tagName: 'p', className: ['subtitle'] });
 const contentEl = insertNode({ parentNode: containerEl, className: ['content'] });
 const textAreaEl = insertNode({ parentNode: contentEl, tagName: 'textarea', className: ['textarea'] });
 const keyboardEl = insertNode({ parentNode: contentEl, className: ['keyboard'] });
 const keyboardRow = insertNode({ parentNode: keyboardEl, className: ['keyboard__row'] });
 
+titleEl.textContent = 'Virtual Keyboard';
+subtitleEl.textContent = 'Для переключения языка комбинация: ctrl + alt';
 textAreaEl.setAttribute('placeholder', 'Enter something...');
 textAreaEl.setAttribute('autofocus', '');
 

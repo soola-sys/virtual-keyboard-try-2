@@ -11,9 +11,26 @@ body {
   justify-content: center;
   flex-direction: column;
 }
+.description {
+  position: fixed;
+  text-align: center;
+  letter-spacing: 3px;
+  color: #f8ce82;
+  top: 0;
+}
+.title {
+  font-size: 30px;
+  letter-spacing: 3px;
+}
+.subtitle {
+  font-size: 20px;
 
+}
 .container {
   max-width: 916px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   margin: 0 auto;
   padding: 0 15px;
 }
